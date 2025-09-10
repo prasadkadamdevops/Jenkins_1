@@ -5,14 +5,14 @@ pipeline {
         stage('Build Application') {
             steps {
                 echo 'Building Application'
-                sh 'docker build -t job-3 .'
+                sh 'docker build -t job-4 .'
             }
         }
 
         stage('Run Application') {
             steps {
                 echo 'Running Application'
-                sh 'docker run --name app-1 -d -p 86:80 job-3'
+                sh 'docker run --name app-1 -d -p 86:80 job-4'
             }
         }
 
