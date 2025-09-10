@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build Application') {
+            steps {
+                echo 'Building Application'
+                sh 'docker build -t job-3 .'
+            }
+        }
+
+        stage('Run Application') {
+            steps {
+                echo 'Running Application'
+                sh 'docker run --name app-1 -d -p 86:80 job-3'
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                echo 'Pushing docker image to DockerHub'
+                withCredentials([usernamePassword(credentialsId: 'docker_hub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh 'docker tag job-3 $DOCKER_USER/job-3:latest'
+                    sh 'docker push $DOCKER_USER/job-3:latest'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            emailext(
+                to: 'prasadkadam125@gmail.com',
+                subject: "Jenkins Job Completed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "The Jenkins job has completed.\n\nStatus: ${currentBuild.currentResult}\nBuild URL: ${env.BUILD_URL}"
+            )
+        }
+    }
+}
+
