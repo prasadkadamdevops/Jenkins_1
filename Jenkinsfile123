@@ -2,17 +2,25 @@ pipeline {
     agent any
 
     stages {
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker_hub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                }
+            }
+        }
+
         stage('Build Application') {
             steps {
                 echo 'Building Application'
-                sh 'docker build -t job-4 .'
+                sh 'docker build -t job-3 .'
             }
         }
 
         stage('Run Application') {
             steps {
                 echo 'Running Application'
-                sh 'docker run --name app-1 -d -p 86:80 job-4'
+                sh 'docker run --name app-1 -d -p 86:80 job-3'
             }
         }
 
@@ -38,4 +46,3 @@ pipeline {
         }
     }
 }
-
